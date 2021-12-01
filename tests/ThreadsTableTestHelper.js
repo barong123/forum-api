@@ -7,7 +7,7 @@ const ThreadsTableTestHelper = {
     title = "ini judul",
     body = "ini isi thread",
     date = "2021-08-08T07:22:33.555Z",
-    owner = "user-CrkY5iAgOdMqv36bIvys2",
+    owner = "user-123",
   }) {
     const query = {
       text: "INSERT INTO threads VALUES($1, $2, $3, $4, $5)",
@@ -15,6 +15,16 @@ const ThreadsTableTestHelper = {
     };
 
     await pool.query(query);
+  },
+
+  async findThreadsById(id) {
+    const query = {
+      text: "SELECT * FROM threads WHERE id = $1",
+      values: [id],
+    };
+
+    const result = await pool.query(query);
+    return result.rows;
   },
 
   async cleanTable() {
