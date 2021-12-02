@@ -6,18 +6,11 @@ const ReplyRepository = require("../../../Domains/threads/ReplyRepository");
 const GetThreadDetailUseCase = require("../GetThreadDetailUseCase");
 
 describe("GetThreadDetailUseCase", () => {
-  it("should orchestrate the add thread action correctly", async () => {
+  it("should orchestrate the get thread detail action correctly", async () => {
     // Arrange
     const useCasePayload = {
       threadId: "thread-123",
     };
-    const expectedCommentDetail = new CommentDetail({
-      id: "comment-_pby2_tmXV6bcvcdev8xk",
-      content: "sebuah comment",
-      date: "2021-08-08T07:22:33.555Z",
-      username: "johndoe",
-      replies: [],
-    });
     const expectedThreadDetail = new ThreadDetail({
       id: "thread-123",
       title: "sebuah thread",
@@ -26,13 +19,28 @@ describe("GetThreadDetailUseCase", () => {
       username: "dicoding",
       comments: [],
     });
+    const expectedCommentDetail = new CommentDetail({
+      id: "comment-_pby2_tmXV6bcvcdev8xk",
+      content: "sebuah comment",
+      date: "2021-08-08T07:22:33.555Z",
+      username: "johndoe",
+      replies: [],
+    });
     const expectedThreadDetailFull = new ThreadDetail({
       id: "thread-123",
       title: "sebuah thread",
       body: "sebuah body thread",
       date: "2021-08-08T07:19:09.775Z",
       username: "dicoding",
-      comments: [expectedCommentDetail, expectedCommentDetail],
+      comments: [
+        new CommentDetail({
+          id: "comment-_pby2_tmXV6bcvcdev8xk",
+          content: "sebuah comment",
+          date: "2021-08-08T07:22:33.555Z",
+          username: "johndoe",
+          replies: [expectedCommentDetail],
+        }),
+      ],
     });
 
     /** creating dependency of use case */
@@ -49,9 +57,7 @@ describe("GetThreadDetailUseCase", () => {
       .mockImplementation(() => Promise.resolve(expectedCommentDetail));
     mockReplyRepository.getRepliesId = jest
       .fn()
-      .mockImplementation(() =>
-        Promise.resolve([expectedCommentDetail.id, expectedCommentDetail.id])
-      );
+      .mockImplementation(() => Promise.resolve([expectedCommentDetail.id]));
 
     /** creating use case instance */
     const getThreadDetailUseCase = new GetThreadDetailUseCase({

@@ -42,7 +42,7 @@ describe("/replies endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual("success");
-      expect(responseJson.data.addedComment).toBeDefined();
+      expect(responseJson.data.addedReply).toBeDefined();
     });
 
     it("should response 404 if comment id is not found", async () => {
@@ -67,6 +67,32 @@ describe("/replies endpoint", () => {
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual("komen dari thread tidak ditemukan");
+    });
+
+    it("should response 404 if comment id is not found", async () => {
+      // Arrange
+      await ThreadsTableTestHelper.addThread({ id: "thread-123" });
+      const requestPayload = { content: "abc" };
+      const accessToken = await ServerTestHelper.getAccessToken();
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: "POST",
+        url: "/threads/thread-123/comments/xxxx/replies",
+        payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual(
+        "thread atau komen dari thread tidak ditemukan"
+      );
     });
 
     it("should response 400 when request payload not contain needed property", async () => {

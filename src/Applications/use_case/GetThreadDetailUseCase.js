@@ -9,14 +9,27 @@ class GetThreadDetailUseCase {
     const { threadId } = useCasePayload;
 
     const threadDetail = await this._threadRepository.getThreadDetail(threadId);
-    const repliesIdArr = await this._replyRepository.getRepliesId(threadId);
+    const commentsIdArr = await this._replyRepository.getRepliesId(threadId);
 
     let i = 0;
-    while (i < repliesIdArr.length) {
-      // eslint-disable-next-line no-await-in-loop
+    while (i < commentsIdArr.length) {
       const commentDetail = await this._commentRepository.getCommentDetail(
-        repliesIdArr[i]
+        commentsIdArr[i]
       );
+      const repliesIdArr = await this._replyRepository.getRepliesId(
+        commentsIdArr[i]
+      );
+
+      let j = 0;
+      while (j < repliesIdArr.length) {
+        const replyDetail = await this._commentRepository.getCommentDetail(
+          repliesIdArr[j]
+        );
+
+        commentDetail.replies.push(replyDetail);
+        j += 1;
+      }
+
       threadDetail.comments.push(commentDetail);
       i += 1;
     }

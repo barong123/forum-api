@@ -42,7 +42,7 @@ class CommentsHandler {
     const { id } = request.auth.credentials;
     const { threadId, commentId } = request.params;
 
-    const threadDetail = await deleteCommentUseCase.execute({
+    await deleteCommentUseCase.execute({
       userId: id,
       threadId,
       commentId,
@@ -50,9 +50,6 @@ class CommentsHandler {
 
     const response = h.response({
       status: "success",
-      data: {
-        threadDetail,
-      },
     });
     response.code(200);
     return response;

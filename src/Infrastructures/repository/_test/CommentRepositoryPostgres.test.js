@@ -17,6 +17,12 @@ describe("CommentRepositoryPostgres", () => {
     await UsersTableTestHelper.cleanTable();
   });
 
+  beforeEach(async () => {
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterAll(async () => {
     await pool.end();
   });
@@ -97,6 +103,36 @@ describe("CommentRepositoryPostgres", () => {
         id: "comment-123",
         owner: "user-123",
         content: "ini konten",
+      });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      const commentDetail = await commentRepositoryPostgres.getCommentDetail(
+        "comment-123"
+      );
+
+      // Assert
+      expect(commentDetail).toStrictEqual(
+        new CommentDetail({
+          id: "comment-123",
+          content: "ini konten",
+          date: "2021-08-08T07:22:33.555Z",
+          username: "myUser",
+          replies: [],
+        })
+      );
+    });
+
+    it("should return deleted comment detail correctly", async () => {
+      // Arrange
+      await UsersTableTestHelper.addUser({
+        id: "user-123",
+        username: "myUser",
+      });
+      await CommentsTableTestHelper.addComment({
+        id: "comment-123",
+        owner: "user-123",
+        content: "ini konten",
         isDeleted: true,
       });
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
@@ -111,6 +147,37 @@ describe("CommentRepositoryPostgres", () => {
         new CommentDetail({
           id: "comment-123",
           content: "**komentar telah dihapus**",
+          date: "2021-08-08T07:22:33.555Z",
+          username: "myUser",
+          replies: [],
+        })
+      );
+    });
+
+    it("should return deleted reply detail correctly", async () => {
+      // Arrange
+      await UsersTableTestHelper.addUser({
+        id: "user-123",
+        username: "myUser",
+      });
+      await CommentsTableTestHelper.addComment({
+        id: "reply-123",
+        owner: "user-123",
+        content: "ini konten",
+        isDeleted: true,
+      });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      const commentDetail = await commentRepositoryPostgres.getCommentDetail(
+        "reply-123"
+      );
+
+      // Assert
+      expect(commentDetail).toStrictEqual(
+        new CommentDetail({
+          id: "reply-123",
+          content: "**balasan telah dihapus**",
           date: "2021-08-08T07:22:33.555Z",
           username: "myUser",
           replies: [],

@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const AddedComment = require("../../Domains/threads/entities/AddedComment");
 const CommentDetail = require("../../Domains/threads/entities/CommentDetail");
@@ -14,18 +15,36 @@ class CommentRepositoryPostgres extends CommentRepository {
   async addComment(addComment) {
     const { content, userId, threadId } = addComment;
 
-    const threadQuery = {
-      text: "SELECT * FROM threads WHERE id = $1",
-      values: [threadId],
-    };
+    if (threadId.includes("thread")) {
+      const initialQuery = {
+        text: "SELECT * FROM threads WHERE id = $1",
+        values: [threadId],
+      };
 
-    const threadQueryResult = await this._pool.query(threadQuery);
+      const initialQueryResult = await this._pool.query(initialQuery);
 
-    if (!threadQueryResult.rowCount) {
-      throw new NotFoundError("thread tidak ditemukan");
+      if (!initialQueryResult.rowCount) {
+        throw new NotFoundError("thread tidak ditemukan");
+      }
+    } else if (threadId.includes("comment")) {
+      const initialQuery = {
+        text: "SELECT * FROM comments WHERE id = $1",
+        values: [threadId],
+      };
+
+      const initialQueryResult = await this._pool.query(initialQuery);
+
+      if (!initialQueryResult.rowCount) {
+        throw new NotFoundError("komen dari thread tidak ditemukan");
+      }
+    } else {
+      throw new NotFoundError("thread atau komen dari thread tidak ditemukan");
     }
 
-    const id = `comment-${this._idGenerator()}`;
+    const isReplyOfThread = threadId.includes("thread");
+    const id = `${
+      isReplyOfThread ? "comment" : "reply"
+    }-${this._idGenerator()}`;
     const date = new Date().toISOString();
     const isDelete = false;
 
@@ -64,7 +83,9 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const { id, date } = commentDetail;
     const content = commentDetail.is_delete
-      ? "**komentar telah dihapus**"
+      ? `**${
+          commentId.includes("comment") ? "komentar" : "balasan"
+        } telah dihapus**`
       : commentDetail.content;
 
     return new CommentDetail({
@@ -87,7 +108,11 @@ class CommentRepositoryPostgres extends CommentRepository {
     const result = await this._pool.query(matchQuery);
 
     if (!result.rowCount) {
-      throw new NotFoundError("komen yang dicari tidak ditemukan");
+      throw new NotFoundError(
+        `${
+          commentId.includes("comment") ? "komen" : "balasan"
+        } yang dicari tidak ditemukan`
+      );
     }
 
     const { owner } = result.rows[0];

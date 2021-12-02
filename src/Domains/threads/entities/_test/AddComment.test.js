@@ -1,6 +1,6 @@
 const AddComment = require("../AddComment");
 
-describe("an AddedComment entities", () => {
+describe("an AddComment entities", () => {
   it("should throw error when payload did not contain needed property or empty", () => {
     // Arrange
     const payload = {
@@ -27,7 +27,7 @@ describe("an AddedComment entities", () => {
     );
   });
 
-  it("should create AddedComment object correctly", () => {
+  it("should create AddComment object correctly", () => {
     // Arrange
     const payload = {
       content: "abc",
