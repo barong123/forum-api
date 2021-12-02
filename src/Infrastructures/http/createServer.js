@@ -4,24 +4,23 @@ const ClientError = require("../../Commons/exceptions/ClientError");
 const DomainErrorTranslator = require("../../Commons/exceptions/DomainErrorTranslator");
 const users = require("../../Interfaces/http/api/users");
 const authentications = require("../../Interfaces/http/api/authentications");
+const threads = require("../../Interfaces/http/api/threads");
+const comments = require("../../Interfaces/http/api/comments");
 
 const createServer = async (container) => {
   const server = Hapi.server({
     host: process.env.HOST,
     port: process.env.PORT,
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
   });
 
   await server.register([
     {
       plugin: Jwt,
-    },
-    {
-      plugin: users,
-      options: { container },
-    },
-    {
-      plugin: authentications,
-      options: { container },
     },
   ]);
 
@@ -40,6 +39,25 @@ const createServer = async (container) => {
       },
     }),
   });
+
+  await server.register([
+    {
+      plugin: users,
+      options: { container },
+    },
+    {
+      plugin: authentications,
+      options: { container },
+    },
+    {
+      plugin: threads,
+      options: { container },
+    },
+    {
+      plugin: comments,
+      options: { container },
+    },
+  ]);
 
   server.ext("onPreResponse", (request, h) => {
     // mendapatkan konteks response dari request

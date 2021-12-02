@@ -1,16 +1,19 @@
 const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
 const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
-const InvariantError = require("../../../Commons/exceptions/InvariantError");
+const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
+const AuthorizationError = require("../../../Commons/exceptions/AuthorizationError");
 const AddedComment = require("../../../Domains/threads/entities/AddedComment");
 const AddComment = require("../../../Domains/threads/entities/AddComment");
 const CommentDetail = require("../../../Domains/threads/entities/CommentDetail");
 const DeleteComment = require("../../../Domains/threads/entities/DeleteComment");
 const pool = require("../../database/postgres/pool");
 const CommentRepositoryPostgres = require("../CommentRepositoryPostgres");
+const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
 
 describe("CommentRepositoryPostgres", () => {
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
   });
 
@@ -21,6 +24,7 @@ describe("CommentRepositoryPostgres", () => {
   describe("addComment function", () => {
     it("should persist added comment", async () => {
       // Arrange
+      ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const addComment = new AddComment({
         content: "abc",
         userId: "user-123",
@@ -44,6 +48,7 @@ describe("CommentRepositoryPostgres", () => {
 
     it("should return added comment correctly", async () => {
       // Arrange
+      ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const addComment = new AddComment({
         content: "abc",
         userId: "user-123",
@@ -72,14 +77,14 @@ describe("CommentRepositoryPostgres", () => {
   });
 
   describe("getCommentDetail function", () => {
-    it("should throw InvariantError when comment not found", async () => {
+    it("should throw NotFoundError when comment not found", async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
       await expect(
         commentRepositoryPostgres.getCommentDetail("comment-123")
-      ).rejects.toThrowError(InvariantError);
+      ).rejects.toThrowError(NotFoundError);
     });
 
     it("should return comment detail correctly", async () => {
@@ -115,14 +120,38 @@ describe("CommentRepositoryPostgres", () => {
   });
 
   describe("deleteComment function", () => {
-    it("should throw InvariantError when comment not found", async () => {
+    it("should throw NotFoundErrorError when comment not found", async () => {
       // Arrange
+      const deleteComment = new DeleteComment({
+        userId: "user-123",
+        threadId: "thread-123",
+        commentId: "comment-123",
+      });
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
       await expect(
-        commentRepositoryPostgres.deleteComment("comment-123")
-      ).rejects.toThrowError(InvariantError);
+        commentRepositoryPostgres.deleteComment(deleteComment)
+      ).rejects.toThrowError(NotFoundError);
+    });
+
+    it("should throw AuthorizationError when user is not the comment owner", async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({
+        id: "comment-123",
+        owner: "user-123",
+      });
+      const deleteComment = new DeleteComment({
+        userId: "user-456",
+        threadId: "thread-123",
+        commentId: "comment-123",
+      });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(
+        commentRepositoryPostgres.deleteComment(deleteComment)
+      ).rejects.toThrowError(AuthorizationError);
     });
 
     it("should delete comment properly", async () => {

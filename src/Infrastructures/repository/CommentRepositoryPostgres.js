@@ -1,7 +1,8 @@
-const InvariantError = require("../../Commons/exceptions/InvariantError");
+const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const AddedComment = require("../../Domains/threads/entities/AddedComment");
 const CommentDetail = require("../../Domains/threads/entities/CommentDetail");
 const CommentRepository = require("../../Domains/threads/CommentRepository");
+const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -12,6 +13,18 @@ class CommentRepositoryPostgres extends CommentRepository {
 
   async addComment(addComment) {
     const { content, userId, threadId } = addComment;
+
+    const threadQuery = {
+      text: "SELECT * FROM threads WHERE id = $1",
+      values: [threadId],
+    };
+
+    const threadQueryResult = await this._pool.query(threadQuery);
+
+    if (!threadQueryResult.rowCount) {
+      throw new NotFoundError("thread tidak ditemukan");
+    }
+
     const id = `comment-${this._idGenerator()}`;
     const date = new Date().toISOString();
     const isDelete = false;
@@ -35,7 +48,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new InvariantError("comment tidak ditemukan");
+      throw new NotFoundError("komen tidak ditemukan");
     }
 
     const commentDetail = result.rows[0];
@@ -64,21 +77,33 @@ class CommentRepositoryPostgres extends CommentRepository {
   }
 
   async deleteComment(deleteComment) {
-    const { commentId } = deleteComment;
+    const { userId, commentId } = deleteComment;
+
+    const matchQuery = {
+      text: "SELECT owner from comments WHERE id = $1",
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(matchQuery);
+
+    if (!result.rowCount) {
+      throw new NotFoundError("komen yang dicari tidak ditemukan");
+    }
+
+    const { owner } = result.rows[0];
+
+    if (owner !== userId) {
+      throw new AuthorizationError("anda tidak berhak melakukan perintah ini");
+    }
 
     const query = {
       text: `UPDATE comments
       SET is_delete = true
-      WHERE id = $1
-      RETURNING id`,
+      WHERE id = $1`,
       values: [commentId],
     };
 
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new InvariantError("komentar tidak ditemukan");
-    }
+    await this._pool.query(query);
   }
 }
 

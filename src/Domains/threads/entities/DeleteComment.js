@@ -11,7 +11,7 @@ class DeleteComment {
 
   _verifyPayload({ userId, threadId, commentId }) {
     if (!userId || !threadId || !commentId) {
-      throw new Error("DELETE_REPLY.NOT_CONTAIN_NEEDED_PROPERTY");
+      throw new Error("DELETE_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY");
     }
 
     if (
@@ -19,7 +19,7 @@ class DeleteComment {
       typeof threadId !== "string" ||
       typeof commentId !== "string"
     ) {
-      throw new Error("DELETE_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION");
+      throw new Error("DELETE_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION");
     }
   }
 }

@@ -3,6 +3,10 @@ const pool = require("../../database/postgres/pool");
 const ReplyRepositoryPostgres = require("../ReplyRepositoryPostgres");
 
 describe("ReplyRepositoryPostgres", () => {
+  beforeEach(async () => {
+    await RepliesTableTestHelper.cleanTable();
+  });
+
   afterEach(async () => {
     await RepliesTableTestHelper.cleanTable();
   });

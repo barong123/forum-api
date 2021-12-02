@@ -11,19 +11,13 @@ describe("GetThreadDetailUseCase", () => {
     const useCasePayload = {
       threadId: "thread-123",
     };
-    const expectedCommentDetail1 = new CommentDetail({
+    const expectedCommentDetail = new CommentDetail({
       id: "comment-_pby2_tmXV6bcvcdev8xk",
       content: "sebuah comment",
       date: "2021-08-08T07:22:33.555Z",
       username: "johndoe",
       replies: [],
     });
-    // const expectedCommentDetail2 = new CommentDetail({
-    //   id: "comment-yksuCoxM2s4MMrZJO-qVD",
-    //   username: "dicoding",
-    //   date: "2021-08-08T07:26:21.338Z",
-    //   content: "**komentar telah dihapus**",
-    // });
     const expectedThreadDetail = new ThreadDetail({
       id: "thread-123",
       title: "sebuah thread",
@@ -38,15 +32,7 @@ describe("GetThreadDetailUseCase", () => {
       body: "sebuah body thread",
       date: "2021-08-08T07:19:09.775Z",
       username: "dicoding",
-      comments: [
-        new CommentDetail({
-          id: "comment-_pby2_tmXV6bcvcdev8xk",
-          content: "sebuah comment",
-          date: "2021-08-08T07:22:33.555Z",
-          username: "johndoe",
-          replies: [],
-        }),
-      ],
+      comments: [expectedCommentDetail, expectedCommentDetail],
     });
 
     /** creating dependency of use case */
@@ -60,10 +46,12 @@ describe("GetThreadDetailUseCase", () => {
       .mockImplementation(() => Promise.resolve(expectedThreadDetail));
     mockCommentRepository.getCommentDetail = jest
       .fn()
-      .mockImplementation(() => Promise.resolve(expectedCommentDetail1));
+      .mockImplementation(() => Promise.resolve(expectedCommentDetail));
     mockReplyRepository.getRepliesId = jest
       .fn()
-      .mockImplementation(() => Promise.resolve([expectedCommentDetail1.id]));
+      .mockImplementation(() =>
+        Promise.resolve([expectedCommentDetail.id, expectedCommentDetail.id])
+      );
 
     /** creating use case instance */
     const getThreadDetailUseCase = new GetThreadDetailUseCase({
@@ -84,7 +72,7 @@ describe("GetThreadDetailUseCase", () => {
       useCasePayload.threadId
     );
     expect(mockCommentRepository.getCommentDetail).toBeCalledWith(
-      expectedCommentDetail1.id
+      expectedCommentDetail.id
     );
   });
 });
