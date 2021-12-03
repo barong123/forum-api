@@ -6,7 +6,7 @@ const CommentsTableTestHelper = {
     id = "comment-123",
     content = "ini konten",
     date = "2021-08-08T07:22:33.555Z",
-    owner = "user-CrkY5iAgOdMqv36bIvys2",
+    owner = "user-123",
     isDeleted = false,
   }) {
     const query = {

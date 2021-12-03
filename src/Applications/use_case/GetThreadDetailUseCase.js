@@ -16,6 +16,10 @@ class GetThreadDetailUseCase {
       const commentDetail = await this._commentRepository.getCommentDetail(
         commentsIdArr[i]
       );
+      if (commentDetail.isDeleted) {
+        commentDetail.content = "**komentar telah dihapus**";
+      }
+
       const repliesIdArr = await this._replyRepository.getRepliesId(
         commentsIdArr[i]
       );
@@ -25,6 +29,9 @@ class GetThreadDetailUseCase {
         const replyDetail = await this._commentRepository.getCommentDetail(
           repliesIdArr[j]
         );
+        if (replyDetail.isDeleted) {
+          replyDetail.content = "**balasan telah dihapus**";
+        }
 
         commentDetail.replies.push(replyDetail);
         j += 1;

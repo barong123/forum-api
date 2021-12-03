@@ -3,6 +3,7 @@ const AddedComment = require("../../../Domains/threads/entities/AddedComment");
 const CommentRepository = require("../../../Domains/threads/CommentRepository");
 const ReplyRepository = require("../../../Domains/threads/ReplyRepository");
 const AddCommentUseCase = require("../AddCommentUseCase");
+const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 
 describe("AddCommentUseCase", () => {
   it("should orchestrate the add comment action correctly", async () => {
@@ -19,6 +20,7 @@ describe("AddCommentUseCase", () => {
     });
 
     /** creating dependency of use case */
+    const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
 
@@ -29,15 +31,22 @@ describe("AddCommentUseCase", () => {
     mockReplyRepository.addReply = jest
       .fn()
       .mockImplementation(() => Promise.resolve());
+    mockThreadRepository.getThreadDetail = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve());
+    mockCommentRepository.getCommentDetail = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve());
 
     /** creating use case instance */
-    const getCommentUseCase = new AddCommentUseCase({
+    const getAddCommentUseCase = new AddCommentUseCase({
+      threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
     });
 
     // Action
-    const addedComment = await getCommentUseCase.execute(useCasePayload);
+    const addedComment = await getAddCommentUseCase.execute(useCasePayload);
 
     // Assert
     expect(addedComment).toStrictEqual(expectedAddedComment);
@@ -47,7 +56,8 @@ describe("AddCommentUseCase", () => {
         content: useCasePayload.content,
         userId: useCasePayload.userId,
         threadId: useCasePayload.threadId,
-      })
+      }),
+      true
     );
   });
 });

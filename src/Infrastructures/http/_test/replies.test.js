@@ -20,6 +20,7 @@ describe("/replies endpoint", () => {
   describe("when POST /threads/{threadId}/comments/{commentId}/replies", () => {
     it("should response 201 and persisted reply", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
       await ThreadsTableTestHelper.addThread({ id: "thread-123" });
       await CommentsTableTestHelper.addComment({ id: "comment-123" });
       const requestPayload = {
@@ -47,6 +48,7 @@ describe("/replies endpoint", () => {
 
     it("should response 404 if comment id is not found", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
       await ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const requestPayload = { content: "abc" };
       const accessToken = await ServerTestHelper.getAccessToken();
@@ -71,6 +73,7 @@ describe("/replies endpoint", () => {
 
     it("should response 404 if comment id is not found", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
       await ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const requestPayload = { content: "abc" };
       const accessToken = await ServerTestHelper.getAccessToken();
@@ -90,9 +93,7 @@ describe("/replies endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual("fail");
-      expect(responseJson.message).toEqual(
-        "thread atau komen dari thread tidak ditemukan"
-      );
+      expect(responseJson.message).toEqual("komen dari thread tidak ditemukan");
     });
 
     it("should response 400 when request payload not contain needed property", async () => {
@@ -150,14 +151,25 @@ describe("/replies endpoint", () => {
   describe("when DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}", () => {
     it("should response 200 if reply id is valid", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-789" });
+      await UsersTableTestHelper.addUser({
+        id: "user-789",
+        username: "user789",
+      });
       await ThreadsTableTestHelper.addThread({
         id: "thread-789",
         owner: "user-789",
       });
+      await UsersTableTestHelper.addUser({
+        id: "user-456",
+        username: "user456",
+      });
       await CommentsTableTestHelper.addComment({
         id: "comment-456",
         owner: "user-456",
+      });
+      await UsersTableTestHelper.addUser({
+        id: "user-123",
+        username: "user123",
       });
       await CommentsTableTestHelper.addComment({
         id: "reply-123",
@@ -183,10 +195,17 @@ describe("/replies endpoint", () => {
 
     it("should response 404 when reply id is not found", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-789" });
+      await UsersTableTestHelper.addUser({
+        id: "user-789",
+        username: "user789",
+      });
       await ThreadsTableTestHelper.addThread({
         id: "thread-789",
         owner: "user-789",
+      });
+      await UsersTableTestHelper.addUser({
+        id: "user-456",
+        username: "user456",
       });
       await CommentsTableTestHelper.addComment({
         id: "comment-456",

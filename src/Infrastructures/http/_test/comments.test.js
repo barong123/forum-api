@@ -20,6 +20,7 @@ describe("/comments endpoint", () => {
   describe("when POST /threads/{threadId}/comments", () => {
     it("should response 201 and persisted comment", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
       await ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const requestPayload = {
         content: "abc",
@@ -64,7 +65,9 @@ describe("/comments endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual("fail");
-      expect(responseJson.message).toEqual("thread tidak ditemukan");
+      expect(responseJson.message).toEqual(
+        "thread yang dicari tidak ditemukan"
+      );
     });
 
     it("should response 400 when request payload not contain needed property", async () => {
@@ -122,10 +125,17 @@ describe("/comments endpoint", () => {
   describe("when DELETE /threads/{threadId}/comments/{commentId}", () => {
     it("should response 200 if comment id is valid", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-789" });
+      await UsersTableTestHelper.addUser({
+        id: "user-789",
+        username: "user789",
+      });
       await ThreadsTableTestHelper.addThread({
         id: "thread-789",
         owner: "user-789",
+      });
+      await UsersTableTestHelper.addUser({
+        id: "user-123",
+        username: "user123",
       });
       await CommentsTableTestHelper.addComment({
         id: "comment-123",

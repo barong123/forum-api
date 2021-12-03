@@ -24,6 +24,7 @@ describe("a CommentDetail entities", () => {
       date: "2021-08-08T07:19:09.775Z",
       username: "myUser",
       replies: "123",
+      isDeleted: false,
     };
 
     // Action and Assert
@@ -39,6 +40,7 @@ describe("a CommentDetail entities", () => {
       content: "ini konten",
       date: "2021-08-08T07:19:09.775Z",
       username: "myUser",
+      isDeleted: false,
       replies: [],
     };
 

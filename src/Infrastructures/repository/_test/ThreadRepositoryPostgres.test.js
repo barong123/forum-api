@@ -21,6 +21,7 @@ describe("ThreadRepositoryPostgres", () => {
   describe("addThread function", () => {
     it("should persist added thread", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
       const addThread = new AddThread({
         title: "abc",
         body: "abc",
@@ -42,8 +43,9 @@ describe("ThreadRepositoryPostgres", () => {
       expect(threads).toHaveLength(1);
     });
 
-    it("should return added comment correctly", async () => {
+    it("should return added thread correctly", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
       const addThread = new AddThread({
         title: "abc",
         body: "abc",

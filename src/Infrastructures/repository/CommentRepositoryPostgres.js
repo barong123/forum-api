@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable indent */
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const AddedComment = require("../../Domains/threads/entities/AddedComment");
@@ -12,39 +13,9 @@ class CommentRepositoryPostgres extends CommentRepository {
     this._idGenerator = idGenerator;
   }
 
-  async addComment(addComment) {
-    const { content, userId, threadId } = addComment;
-
-    if (threadId.includes("thread")) {
-      const initialQuery = {
-        text: "SELECT * FROM threads WHERE id = $1",
-        values: [threadId],
-      };
-
-      const initialQueryResult = await this._pool.query(initialQuery);
-
-      if (!initialQueryResult.rowCount) {
-        throw new NotFoundError("thread tidak ditemukan");
-      }
-    } else if (threadId.includes("comment")) {
-      const initialQuery = {
-        text: "SELECT * FROM comments WHERE id = $1",
-        values: [threadId],
-      };
-
-      const initialQueryResult = await this._pool.query(initialQuery);
-
-      if (!initialQueryResult.rowCount) {
-        throw new NotFoundError("komen dari thread tidak ditemukan");
-      }
-    } else {
-      throw new NotFoundError("thread atau komen dari thread tidak ditemukan");
-    }
-
-    const isReplyOfThread = threadId.includes("thread");
-    const id = `${
-      isReplyOfThread ? "comment" : "reply"
-    }-${this._idGenerator()}`;
+  async addComment(addComment, isThreadReply = true) {
+    const { content, userId } = addComment;
+    const id = `${isThreadReply ? "comment" : "reply"}-${this._idGenerator()}`;
     const date = new Date().toISOString();
     const isDelete = false;
 
@@ -67,7 +38,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError("komen tidak ditemukan");
+      throw new NotFoundError("komen dari thread tidak ditemukan");
     }
 
     const commentDetail = result.rows[0];
@@ -81,12 +52,8 @@ class CommentRepositoryPostgres extends CommentRepository {
     const { username } = usernameQueryResult.rows[0];
     const replies = [];
 
-    const { id, date } = commentDetail;
-    const content = commentDetail.is_delete
-      ? `**${
-          commentId.includes("comment") ? "komentar" : "balasan"
-        } telah dihapus**`
-      : commentDetail.content;
+    const { id, date, content, is_delete } = commentDetail;
+    const isDeleted = is_delete;
 
     return new CommentDetail({
       id,
@@ -94,10 +61,24 @@ class CommentRepositoryPostgres extends CommentRepository {
       date,
       username,
       replies,
+      isDeleted,
     });
   }
 
   async deleteComment(deleteComment) {
+    const { commentId } = deleteComment;
+
+    const query = {
+      text: `UPDATE comments
+      SET is_delete = true
+      WHERE id = $1`,
+      values: [commentId],
+    };
+
+    await this._pool.query(query);
+  }
+
+  async verifyComment(deleteComment) {
     const { userId, commentId } = deleteComment;
 
     const matchQuery = {
@@ -120,15 +101,6 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (owner !== userId) {
       throw new AuthorizationError("anda tidak berhak melakukan perintah ini");
     }
-
-    const query = {
-      text: `UPDATE comments
-      SET is_delete = true
-      WHERE id = $1`,
-      values: [commentId],
-    };
-
-    await this._pool.query(query);
   }
 }
 

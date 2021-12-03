@@ -23,6 +23,12 @@ exports.up = (pgm) => {
       notNull: true,
     },
   });
+
+  pgm.addConstraint(
+    "threads",
+    "fk_threads.owner_users.id",
+    "FOREIGN KEY(owner) REFERENCES users(id) ON DELETE CASCADE"
+  );
 };
 
 exports.down = (pgm) => {
