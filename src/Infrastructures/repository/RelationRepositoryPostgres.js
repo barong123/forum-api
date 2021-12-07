@@ -23,13 +23,7 @@ class RelationRepositoryPostgres extends RelationRepository {
 
     const result = await this._pool.query(query);
 
-    const idArr = [];
-    for (let i = 0; i < result.rows.length; i += 1) {
-      const commentId = result.rows[i].comment_id;
-      idArr.push(commentId);
-    }
-
-    return idArr;
+    return result.rows.map((row) => row.comment_id);
   }
 
   async getRepliesId(commentId) {

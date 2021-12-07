@@ -71,14 +71,14 @@ describe("ThreadRepositoryPostgres", () => {
     });
   });
 
-  describe("getThreadDetail function", () => {
+  describe("getThread function", () => {
     it("should throw NotFoundError when thread not found", async () => {
       // Arrange
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
 
       // Action & Assert
       await expect(
-        threadRepositoryPostgres.getThreadDetail("thread-123")
+        threadRepositoryPostgres.getThread("thread-123")
       ).rejects.toThrowError(NotFoundError);
     });
 
@@ -92,21 +92,18 @@ describe("ThreadRepositoryPostgres", () => {
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
 
       // Action
-      const threadDetail = await threadRepositoryPostgres.getThreadDetail(
+      const threadDetail = await threadRepositoryPostgres.getThread(
         "thread-123"
       );
 
       // Assert
-      expect(threadDetail).toStrictEqual(
-        new ThreadDetail({
-          id: "thread-123",
-          title: "ini judul",
-          body: "ini isi thread",
-          date: "2021-08-08T07:22:33.555Z",
-          username: "myUser",
-          comments: [],
-        })
-      );
+      expect(threadDetail).toStrictEqual({
+        id: "thread-123",
+        title: "ini judul",
+        body: "ini isi thread",
+        date: "2021-08-08T07:22:33.555Z",
+        owner: "user-123",
+      });
     });
   });
 

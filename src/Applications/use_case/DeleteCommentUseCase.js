@@ -8,7 +8,8 @@ class DeleteCommentUseCase {
   async execute(useCasePayload) {
     const deleteComment = new DeleteComment(useCasePayload);
 
-    await this._commentRepository.verifyComment(deleteComment);
+    // verifyCommemntOwner juga mengecek ketersedian komen di database agar menghemat jumlah query
+    await this._commentRepository.verifyCommentOwner(deleteComment);
     await this._commentRepository.deleteComment(deleteComment);
   }
 }

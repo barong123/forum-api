@@ -29,7 +29,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     return new AddedReply({ ...result.rows[0] });
   }
 
-  async getReplyDetail(replyId) {
+  async getReply(replyId) {
     const query = {
       text: "SELECT * FROM replies WHERE id = $1",
       values: [replyId],
@@ -38,31 +38,11 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError("balasan dari thread tidak ditemukan");
+      throw new NotFoundError("balasan tidak ditemukan");
     }
 
-    const replyDetail = result.rows[0];
-
-    const usernameQuery = {
-      text: "SELECT username FROM users WHERE id = $1",
-      values: [replyDetail.owner],
-    };
-    const usernameQueryResult = await this._pool.query(usernameQuery);
-
-    const { username } = usernameQueryResult.rows[0];
-    const replies = [];
-
-    const { id, date, content, is_delete } = replyDetail;
-    const isDeleted = is_delete;
-
-    return new ReplyDetail({
-      id,
-      content,
-      date,
-      username,
-      replies,
-      isDeleted,
-    });
+    const reply = result.rows[0];
+    return reply;
   }
 
   async deleteReply(deleteReply) {
@@ -78,13 +58,14 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     await this._pool.query(query);
   }
 
-  async verifyReply({ userId, replyId }) {
-    const matchQuery = {
+  // verifyReplyOwner juga mengecek ketersedian balasan di database agar menghemat jumlah query
+  async verifyReplyOwner({ userId, replyId }) {
+    const query = {
       text: "SELECT owner from replies WHERE id = $1",
       values: [replyId],
     };
 
-    const result = await this._pool.query(matchQuery);
+    const result = await this._pool.query(query);
 
     if (!result.rowCount) {
       throw new NotFoundError(`balasan yang dicari tidak ditemukan`);

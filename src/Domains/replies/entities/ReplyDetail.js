@@ -11,7 +11,7 @@ class ReplyDetail {
     this.isDeleted = isDeleted;
   }
 
-  _verifyPayload({ id, content, date, username, isDeleted }) {
+  _verifyPayload({ id, content, date, username, isDeleted = false }) {
     if (!id || !content || !date || !username) {
       throw new Error("REPLY_DETAIL.NOT_CONTAIN_NEEDED_PROPERTY");
     }

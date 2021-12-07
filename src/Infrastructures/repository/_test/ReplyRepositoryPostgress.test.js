@@ -73,14 +73,14 @@ describe("ReplyRepositoryPostgres", () => {
     });
   });
 
-  describe("getReplyDetail function", () => {
+  describe("getReply function", () => {
     it("should throw NotFoundError when reply not found", async () => {
       // Arrange
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       // Action & Assert
       await expect(
-        replyRepositoryPostgres.getReplyDetail("reply-123")
+        replyRepositoryPostgres.getReply("reply-123")
       ).rejects.toThrowError(NotFoundError);
     });
 
@@ -98,21 +98,16 @@ describe("ReplyRepositoryPostgres", () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       // Action
-      const replyDetail = await replyRepositoryPostgres.getReplyDetail(
-        "reply-123"
-      );
+      const replyDetail = await replyRepositoryPostgres.getReply("reply-123");
 
       // Assert
-      expect(replyDetail).toStrictEqual(
-        new ReplyDetail({
-          id: "reply-123",
-          content: "ini konten",
-          date: "2021-08-08T07:22:33.555Z",
-          username: "myUser",
-          replies: [],
-          isDeleted: false,
-        })
-      );
+      expect(replyDetail).toStrictEqual({
+        id: "reply-123",
+        content: "ini konten",
+        date: "2021-08-08T07:22:33.555Z",
+        owner: "user-123",
+        is_delete: false,
+      });
     });
   });
 
@@ -141,7 +136,7 @@ describe("ReplyRepositoryPostgres", () => {
     });
   });
 
-  describe("verifyReply function", () => {
+  describe("verifyReplyOwner function", () => {
     it("should throw NotFoundErrorError when reply not found", async () => {
       // Arrange
       const deleteReply = new DeleteReply({
@@ -152,7 +147,7 @@ describe("ReplyRepositoryPostgres", () => {
 
       // Action & Assert
       await expect(
-        replyRepositoryPostgres.verifyReply(deleteReply)
+        replyRepositoryPostgres.verifyReplyOwner(deleteReply)
       ).rejects.toThrowError(NotFoundError);
     });
 
@@ -171,7 +166,7 @@ describe("ReplyRepositoryPostgres", () => {
 
       // Action & Assert
       await expect(
-        replyRepositoryPostgres.verifyReply(deleteReply)
+        replyRepositoryPostgres.verifyReplyOwner(deleteReply)
       ).rejects.toThrowError(AuthorizationError);
     });
   });

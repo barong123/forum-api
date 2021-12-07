@@ -14,7 +14,7 @@ describe("DeleteReplyUseCase", () => {
     const mockReplyRepository = new ReplyRepository();
 
     /** mocking needed function */
-    mockReplyRepository.verifyReply = jest
+    mockReplyRepository.verifyReplyOwner = jest
       .fn()
       .mockImplementation(() => Promise.resolve());
     mockReplyRepository.deleteReply = jest
@@ -30,7 +30,7 @@ describe("DeleteReplyUseCase", () => {
     await deleteReplyUseCase.execute(useCasePayload);
 
     // Assert
-    expect(mockReplyRepository.verifyReply).toBeCalledWith(
+    expect(mockReplyRepository.verifyReplyOwner).toBeCalledWith(
       new DeleteReply({
         userId: useCasePayload.userId,
         replyId: useCasePayload.replyId,

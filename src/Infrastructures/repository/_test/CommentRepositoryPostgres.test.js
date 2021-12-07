@@ -77,14 +77,14 @@ describe("CommentRepositoryPostgres", () => {
     });
   });
 
-  describe("getCommentDetail function", () => {
+  describe("getComment function", () => {
     it("should throw NotFoundError when comment not found", async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
       await expect(
-        commentRepositoryPostgres.getCommentDetail("comment-123")
+        commentRepositoryPostgres.getComment("comment-123")
       ).rejects.toThrowError(NotFoundError);
     });
 
@@ -102,21 +102,18 @@ describe("CommentRepositoryPostgres", () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action
-      const commentDetail = await commentRepositoryPostgres.getCommentDetail(
+      const commentDetail = await commentRepositoryPostgres.getComment(
         "comment-123"
       );
 
       // Assert
-      expect(commentDetail).toStrictEqual(
-        new CommentDetail({
-          id: "comment-123",
-          content: "ini konten",
-          date: "2021-08-08T07:22:33.555Z",
-          username: "myUser",
-          replies: [],
-          isDeleted: false,
-        })
-      );
+      expect(commentDetail).toStrictEqual({
+        id: "comment-123",
+        content: "ini konten",
+        date: "2021-08-08T07:22:33.555Z",
+        owner: "user-123",
+        is_delete: false,
+      });
     });
   });
 
@@ -145,21 +142,20 @@ describe("CommentRepositoryPostgres", () => {
     });
   });
 
-  describe("verifyComment function", () => {
+  describe("verifyCommentExistence function", () => {
     it("should throw NotFoundErrorError when comment not found", async () => {
       // Arrange
-      const deleteComment = new DeleteComment({
-        userId: "user-123",
-        commentId: "comment-123",
-      });
+      const commentId = "comment-123";
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
       await expect(
-        commentRepositoryPostgres.verifyComment(deleteComment)
+        commentRepositoryPostgres.verifyCommentExistence(commentId)
       ).rejects.toThrowError(NotFoundError);
     });
+  });
 
+  describe("verifyCommentOwner", () => {
     it("should throw AuthorizationError when user is not the comment owner", async () => {
       // Arrange
       await UsersTableTestHelper.addUser({ id: "user-123" });
@@ -175,7 +171,7 @@ describe("CommentRepositoryPostgres", () => {
 
       // Action & Assert
       await expect(
-        commentRepositoryPostgres.verifyComment(deleteComment)
+        commentRepositoryPostgres.verifyCommentOwner(deleteComment)
       ).rejects.toThrowError(AuthorizationError);
     });
   });

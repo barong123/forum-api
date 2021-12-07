@@ -29,7 +29,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     return new AddedComment({ ...result.rows[0] });
   }
 
-  async getCommentDetail(commentId) {
+  async getComment(commentId) {
     const query = {
       text: "SELECT * FROM comments WHERE id = $1",
       values: [commentId],
@@ -41,28 +41,9 @@ class CommentRepositoryPostgres extends CommentRepository {
       throw new NotFoundError("komen dari thread tidak ditemukan");
     }
 
-    const commentDetail = result.rows[0];
+    const comment = result.rows[0];
 
-    const usernameQuery = {
-      text: "SELECT username FROM users WHERE id = $1",
-      values: [commentDetail.owner],
-    };
-    const usernameQueryResult = await this._pool.query(usernameQuery);
-
-    const { username } = usernameQueryResult.rows[0];
-    const replies = [];
-
-    const { id, date, content, is_delete } = commentDetail;
-    const isDeleted = is_delete;
-
-    return new CommentDetail({
-      id,
-      content,
-      date,
-      username,
-      replies,
-      isDeleted,
-    });
+    return comment;
   }
 
   async deleteComment(deleteComment) {
@@ -78,16 +59,30 @@ class CommentRepositoryPostgres extends CommentRepository {
     await this._pool.query(query);
   }
 
-  async verifyComment({ userId, commentId }) {
+  async verifyCommentExistence(commentId) {
     const matchQuery = {
-      text: "SELECT owner FROM comments WHERE id = $1",
+      text: "SELECT * FROM comments WHERE id = $1",
       values: [commentId],
     };
 
     const result = await this._pool.query(matchQuery);
 
     if (!result.rowCount) {
-      throw new NotFoundError("komen yang dicari tidak ditemukan");
+      throw new NotFoundError("komen dari thread tidak ditemukan");
+    }
+  }
+
+  // verifyCommemntOwner juga mengecek ketersedian komen di database agar menghemat jumlah query
+  async verifyCommentOwner({ userId, commentId }) {
+    const query = {
+      text: "SELECT owner FROM comments WHERE id = $1",
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError("komen dari thread tidak ditemukan");
     }
 
     const { owner } = result.rows[0];

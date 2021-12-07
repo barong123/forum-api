@@ -25,7 +25,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return new AddedThread({ ...result.rows[0] });
   }
 
-  async getThreadDetail(threadId) {
+  async getThread(threadId) {
     const query = {
       text: "SELECT * FROM threads WHERE id = $1",
       values: [threadId],
@@ -37,26 +37,8 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       throw new NotFoundError("thread yang dicari tidak ditemukan");
     }
 
-    const threadDetail = result.rows[0];
-
-    const usernameQuery = {
-      text: "SELECT username FROM users WHERE id = $1",
-      values: [threadDetail.owner],
-    };
-    const usernameQueryResult = await this._pool.query(usernameQuery);
-
-    const { username } = usernameQueryResult.rows[0];
-    const comments = [];
-
-    const { id, title, body, date } = threadDetail;
-    return new ThreadDetail({
-      id,
-      title,
-      body,
-      date,
-      username,
-      comments,
-    });
+    const thread = result.rows[0];
+    return thread;
   }
 
   async verifyThreadExistence(threadId) {

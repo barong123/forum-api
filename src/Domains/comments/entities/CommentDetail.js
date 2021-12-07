@@ -12,7 +12,7 @@ class CommentDetail {
     this.isDeleted = isDeleted;
   }
 
-  _verifyPayload({ id, content, date, username, replies, isDeleted }) {
+  _verifyPayload({ id, content, date, username, replies, isDeleted = false }) {
     if (!id || !content || !date || !username || !replies) {
       throw new Error("COMMENT_DETAIL.NOT_CONTAIN_NEEDED_PROPERTY");
     }

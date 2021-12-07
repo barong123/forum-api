@@ -311,6 +311,10 @@ container.register([
       injectType: "destructuring",
       dependencies: [
         {
+          name: "userRepository",
+          internal: UserRepository.name,
+        },
+        {
           name: "threadRepository",
           internal: ThreadRepository.name,
         },

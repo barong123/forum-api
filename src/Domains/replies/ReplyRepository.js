@@ -3,15 +3,11 @@ class ReplyRepository {
     throw new Error("REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
 
-  async getReplyDetail(replyId) {
+  async getReply(replyId) {
     throw new Error("REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
 
   async deleteReply(deleteReply) {
-    throw new Error("REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED");
-  }
-
-  async verifyReplyExistence(replyId) {
     throw new Error("REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
 

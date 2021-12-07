@@ -8,7 +8,8 @@ class DeleteReplyUseCase {
   async execute(useCasePayload) {
     const deleteReply = new DeleteReply(useCasePayload);
 
-    await this._replyRepository.verifyReply(deleteReply);
+    // verifyReplyOwner juga mengecek ketersedian balasan di database agar menghemat jumlah query
+    await this._replyRepository.verifyReplyOwner(deleteReply);
     await this._replyRepository.deleteReply(deleteReply);
   }
 }

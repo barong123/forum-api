@@ -182,7 +182,7 @@ describe("/comments endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual("fail");
-      expect(responseJson.message).toEqual("komen yang dicari tidak ditemukan");
+      expect(responseJson.message).toEqual("komen dari thread tidak ditemukan");
     });
   });
 });
