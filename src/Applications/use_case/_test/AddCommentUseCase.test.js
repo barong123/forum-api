@@ -1,7 +1,7 @@
-const AddComment = require("../../../Domains/threads/entities/AddComment");
-const AddedComment = require("../../../Domains/threads/entities/AddedComment");
-const CommentRepository = require("../../../Domains/threads/CommentRepository");
-const ReplyRepository = require("../../../Domains/threads/ReplyRepository");
+const AddComment = require("../../../Domains/comments/entities/AddComment");
+const AddedComment = require("../../../Domains/comments/entities/AddedComment");
+const CommentRepository = require("../../../Domains/comments/CommentRepository");
+const RelationRepository = require("../../../Domains/relations/RelationRepository");
 const AddCommentUseCase = require("../AddCommentUseCase");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 
@@ -22,19 +22,16 @@ describe("AddCommentUseCase", () => {
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
-    const mockReplyRepository = new ReplyRepository();
+    const mockRelationRepository = new RelationRepository();
 
     /** mocking needed function */
     mockCommentRepository.addComment = jest
       .fn()
       .mockImplementation(() => Promise.resolve(expectedAddedComment));
-    mockReplyRepository.addReply = jest
+    mockRelationRepository.addRelation = jest
       .fn()
       .mockImplementation(() => Promise.resolve());
-    mockThreadRepository.getThreadDetail = jest
-      .fn()
-      .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.getCommentDetail = jest
+    mockThreadRepository.verifyThreadExistence = jest
       .fn()
       .mockImplementation(() => Promise.resolve());
 
@@ -42,7 +39,7 @@ describe("AddCommentUseCase", () => {
     const getAddCommentUseCase = new AddCommentUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
-      replyRepository: mockReplyRepository,
+      relationRepository: mockRelationRepository,
     });
 
     // Action
@@ -50,14 +47,13 @@ describe("AddCommentUseCase", () => {
 
     // Assert
     expect(addedComment).toStrictEqual(expectedAddedComment);
-    expect(mockReplyRepository.addReply).toBeCalled();
+    expect(mockThreadRepository.verifyThreadExistence).toBeCalled();
+    expect(mockRelationRepository.addRelation).toBeCalled();
     expect(mockCommentRepository.addComment).toBeCalledWith(
       new AddComment({
         content: useCasePayload.content,
         userId: useCasePayload.userId,
-        threadId: useCasePayload.threadId,
-      }),
-      true
+      })
     );
   });
 });

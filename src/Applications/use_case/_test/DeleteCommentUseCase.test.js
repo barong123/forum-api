@@ -1,6 +1,5 @@
-const DeleteComment = require("../../../Domains/threads/entities/DeleteComment");
-const CommentRepository = require("../../../Domains/threads/CommentRepository");
-const ReplyRepository = require("../../../Domains/threads/ReplyRepository");
+const DeleteComment = require("../../../Domains/comments/entities/DeleteComment");
+const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const DeleteCommentUseCase = require("../DeleteCommentUseCase");
 
 describe("DeleteCommentUseCase", () => {
@@ -8,7 +7,6 @@ describe("DeleteCommentUseCase", () => {
     // Arrange
     const useCasePayload = {
       userId: "user-123",
-      threadId: "thread-123",
       commentId: "comment-123",
     };
 
@@ -32,10 +30,15 @@ describe("DeleteCommentUseCase", () => {
     await deleteCommentUseCase.execute(useCasePayload);
 
     // Assert
+    expect(mockCommentRepository.verifyComment).toBeCalledWith(
+      new DeleteComment({
+        userId: useCasePayload.userId,
+        commentId: useCasePayload.commentId,
+      })
+    );
     expect(mockCommentRepository.deleteComment).toBeCalledWith(
       new DeleteComment({
         userId: useCasePayload.userId,
-        threadId: useCasePayload.threadId,
         commentId: useCasePayload.commentId,
       })
     );

@@ -1,10 +1,11 @@
 const pool = require("../../database/postgres/pool");
-const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
 const container = require("../../container");
 const createServer = require("../createServer");
 const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const ServerTestHelper = require("../../../../tests/ServerTestHelper");
 const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
+const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
+const RepliesTableTestHelper = require("../../../../tests/RepliesTableTestHelper");
 
 describe("/replies endpoint", () => {
   afterAll(async () => {
@@ -14,6 +15,7 @@ describe("/replies endpoint", () => {
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
+    await RepliesTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
   });
 
@@ -117,7 +119,7 @@ describe("/replies endpoint", () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual(
-        "tidak dapat membuat komen baru karena properti yang dibutuhkan tidak ada"
+        "tidak dapat membuat balasan baru karena properti yang dibutuhkan tidak ada"
       );
     });
 
@@ -143,7 +145,7 @@ describe("/replies endpoint", () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual(
-        "tidak dapat membuat komen baru karena tipe data tidak sesuai"
+        "tidak dapat membuat balasan baru karena tipe data tidak sesuai"
       );
     });
   });
@@ -171,7 +173,7 @@ describe("/replies endpoint", () => {
         id: "user-123",
         username: "user123",
       });
-      await CommentsTableTestHelper.addComment({
+      await RepliesTableTestHelper.addReply({
         id: "reply-123",
         owner: "user-123",
       });

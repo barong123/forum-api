@@ -17,8 +17,7 @@ describe("an AddComment entities", () => {
     // Arrange
     const payload = {
       content: "abc",
-      userId: "user-123",
-      threadId: 123,
+      userId: 123,
     };
 
     // Action and Assert
@@ -32,15 +31,13 @@ describe("an AddComment entities", () => {
     const payload = {
       content: "abc",
       userId: "user-123",
-      threadId: "thread-123",
     };
 
     // Action
-    const { content, userId, threadId } = new AddComment(payload);
+    const { content, userId } = new AddComment(payload);
 
     // Assert
     expect(content).toEqual(payload.content);
     expect(userId).toEqual(payload.userId);
-    expect(threadId).toEqual(payload.threadId);
   });
 });

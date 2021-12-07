@@ -3,20 +3,23 @@ const pool = require("../src/Infrastructures/database/postgres/pool");
 
 const RepliesTableTestHelper = {
   async addReply({
-    threadOrCommentId = "thread-123",
-    replyId = "comment-123",
+    id = "reply-123",
+    content = "ini konten",
+    date = "2021-08-08T07:22:33.555Z",
+    owner = "user-123",
+    isDeleted = false,
   }) {
     const query = {
-      text: "INSERT INTO replies VALUES($1, $2)",
-      values: [threadOrCommentId, replyId],
+      text: "INSERT INTO replies VALUES($1, $2, $3, $4, $5)",
+      values: [id, content, date, owner, isDeleted],
     };
 
     await pool.query(query);
   },
 
-  async findRepliesByThreadId(id) {
+  async findRepliesById(id) {
     const query = {
-      text: "SELECT * FROM replies WHERE thread_or_comment_id = $1",
+      text: "SELECT * FROM replies WHERE id = $1",
       values: [id],
     };
 

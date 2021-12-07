@@ -1,34 +1,21 @@
-const AddComment = require("../../Domains/threads/entities/AddComment");
+const AddComment = require("../../Domains/comments/entities/AddComment");
 
 class AddCommentUseCase {
-  constructor({ threadRepository, commentRepository, replyRepository }) {
+  constructor({ threadRepository, commentRepository, relationRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
-    this._replyRepository = replyRepository;
+    this._relationRepository = relationRepository;
   }
 
-  async execute({ content, userId, threadId, parentThreadId }) {
-    const addComment = new AddComment({ content, userId, threadId });
+  async execute({ content, userId, threadId }) {
+    const addComment = new AddComment({ content, userId });
 
-    let isThreadReply;
-    if (parentThreadId) {
-      await this._threadRepository.getThreadDetail(parentThreadId);
-      await this._commentRepository.getCommentDetail(threadId);
-      isThreadReply = false;
-    } else {
-      await this._threadRepository.getThreadDetail(threadId);
-      isThreadReply = true;
-    }
+    await this._threadRepository.verifyThreadExistence(threadId);
 
-    const addedComment = await this._commentRepository.addComment(
-      addComment,
-      isThreadReply
-    );
+    const addedComment = await this._commentRepository.addComment(addComment);
+    const commentId = addedComment.id;
 
-    const threadOrCommentId = threadId;
-    const replyId = addedComment.id;
-
-    await this._replyRepository.addReply(threadOrCommentId, replyId);
+    await this._relationRepository.addRelation({ threadId, commentId });
 
     return addedComment;
   }

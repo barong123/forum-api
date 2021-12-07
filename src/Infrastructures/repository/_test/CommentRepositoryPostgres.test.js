@@ -2,24 +2,21 @@ const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelp
 const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
 const AuthorizationError = require("../../../Commons/exceptions/AuthorizationError");
-const AddedComment = require("../../../Domains/threads/entities/AddedComment");
-const AddComment = require("../../../Domains/threads/entities/AddComment");
-const CommentDetail = require("../../../Domains/threads/entities/CommentDetail");
-const DeleteComment = require("../../../Domains/threads/entities/DeleteComment");
+const AddedComment = require("../../../Domains/comments/entities/AddedComment");
+const AddComment = require("../../../Domains/comments/entities/AddComment");
+const CommentDetail = require("../../../Domains/comments/entities/CommentDetail");
+const DeleteComment = require("../../../Domains/comments/entities/DeleteComment");
 const pool = require("../../database/postgres/pool");
 const CommentRepositoryPostgres = require("../CommentRepositoryPostgres");
-const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
 
 describe("CommentRepositoryPostgres", () => {
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
-    await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
   });
 
   beforeEach(async () => {
     await CommentsTableTestHelper.cleanTable();
-    await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
   });
 
@@ -31,11 +28,9 @@ describe("CommentRepositoryPostgres", () => {
     it("should persist added comment", async () => {
       // Arrange
       await UsersTableTestHelper.addUser({ id: "user-123" });
-      await ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const addComment = new AddComment({
         content: "abc",
         userId: "user-123",
-        threadId: "thread-123",
       });
       const fakeIdGenerator = () => "123";
       const commentRepositoryPostgres = new CommentRepositoryPostgres(
@@ -56,11 +51,9 @@ describe("CommentRepositoryPostgres", () => {
     it("should return added comment correctly", async () => {
       // Arrange
       await UsersTableTestHelper.addUser({ id: "user-123" });
-      await ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const addComment = new AddComment({
         content: "abc",
         userId: "user-123",
-        threadId: "thread-123",
       });
       const fakeIdGenerator = () => "123";
       const commentRepositoryPostgres = new CommentRepositoryPostgres(
@@ -137,7 +130,6 @@ describe("CommentRepositoryPostgres", () => {
       });
       const deleteComment = new DeleteComment({
         userId: "user-123",
-        threadId: "thread-123",
         commentId: "comment-123",
       });
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
@@ -153,12 +145,11 @@ describe("CommentRepositoryPostgres", () => {
     });
   });
 
-  describe("verifyCommentOwner function", () => {
+  describe("verifyComment function", () => {
     it("should throw NotFoundErrorError when comment not found", async () => {
       // Arrange
       const deleteComment = new DeleteComment({
         userId: "user-123",
-        threadId: "thread-123",
         commentId: "comment-123",
       });
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
@@ -178,7 +169,6 @@ describe("CommentRepositoryPostgres", () => {
       });
       const deleteComment = new DeleteComment({
         userId: "user-456",
-        threadId: "thread-123",
         commentId: "comment-123",
       });
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});

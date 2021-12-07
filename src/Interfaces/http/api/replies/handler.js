@@ -1,5 +1,5 @@
-const AddCommentUseCase = require("../../../../Applications/use_case/AddCommentUseCase");
-const DeleteCommentUseCase = require("../../../../Applications/use_case/DeleteCommentUseCase");
+const AddReplyUseCase = require("../../../../Applications/use_case/AddReplyUseCase");
+const DeleteReplyUseCase = require("../../../../Applications/use_case/DeleteReplyUseCase");
 
 class RepliesHandler {
   constructor(container) {
@@ -10,19 +10,17 @@ class RepliesHandler {
   }
 
   async postReplyHandler(request, h) {
-    const addCommentUseCase = this._container.getInstance(
-      AddCommentUseCase.name
-    );
+    const addReplyUseCase = this._container.getInstance(AddReplyUseCase.name);
 
     const { content } = request.payload;
     const { id } = request.auth.credentials;
     const { commentId, threadId } = request.params;
 
-    const addedReply = await addCommentUseCase.execute({
+    const addedReply = await addReplyUseCase.execute({
       content,
       userId: id,
-      threadId: commentId,
-      parentThreadId: threadId,
+      commentId,
+      threadId,
     });
 
     const response = h.response({
@@ -36,17 +34,17 @@ class RepliesHandler {
   }
 
   async deleteReplyHandler(request, h) {
-    const deleteCommentUseCase = this._container.getInstance(
-      DeleteCommentUseCase.name
+    const deleteReplyUseCase = this._container.getInstance(
+      DeleteReplyUseCase.name
     );
 
     const { id } = request.auth.credentials;
     const { commentId, replyId } = request.params;
 
-    await deleteCommentUseCase.execute({
+    await deleteReplyUseCase.execute({
       userId: id,
-      threadId: commentId,
-      commentId: replyId,
+      commentId,
+      replyId,
     });
 
     const response = h.response({

@@ -109,4 +109,17 @@ describe("ThreadRepositoryPostgres", () => {
       );
     });
   });
+
+  describe("verifyThreadExistence function", () => {
+    it("should throw NotFoundErrorError when thread not found", async () => {
+      // Arrange
+      const threadId = "thread-123";
+      const threadtRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(
+        threadtRepositoryPostgres.verifyThreadExistence(threadId)
+      ).rejects.toThrowError(NotFoundError);
+    });
+  });
 });

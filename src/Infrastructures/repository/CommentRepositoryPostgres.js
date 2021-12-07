@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 /* eslint-disable indent */
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
-const AddedComment = require("../../Domains/threads/entities/AddedComment");
-const CommentDetail = require("../../Domains/threads/entities/CommentDetail");
-const CommentRepository = require("../../Domains/threads/CommentRepository");
+const AddedComment = require("../../Domains/comments/entities/AddedComment");
+const CommentDetail = require("../../Domains/comments/entities/CommentDetail");
+const CommentRepository = require("../../Domains/comments/CommentRepository");
 const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
 
 class CommentRepositoryPostgres extends CommentRepository {
@@ -13,9 +13,9 @@ class CommentRepositoryPostgres extends CommentRepository {
     this._idGenerator = idGenerator;
   }
 
-  async addComment(addComment, isThreadReply = true) {
+  async addComment(addComment) {
     const { content, userId } = addComment;
-    const id = `${isThreadReply ? "comment" : "reply"}-${this._idGenerator()}`;
+    const id = `comment-${this._idGenerator()}`;
     const date = new Date().toISOString();
     const isDelete = false;
 
@@ -78,22 +78,16 @@ class CommentRepositoryPostgres extends CommentRepository {
     await this._pool.query(query);
   }
 
-  async verifyComment(deleteComment) {
-    const { userId, commentId } = deleteComment;
-
+  async verifyComment({ userId, commentId }) {
     const matchQuery = {
-      text: "SELECT owner from comments WHERE id = $1",
+      text: "SELECT owner FROM comments WHERE id = $1",
       values: [commentId],
     };
 
     const result = await this._pool.query(matchQuery);
 
     if (!result.rowCount) {
-      throw new NotFoundError(
-        `${
-          commentId.includes("comment") ? "komen" : "balasan"
-        } yang dicari tidak ditemukan`
-      );
+      throw new NotFoundError("komen yang dicari tidak ditemukan");
     }
 
     const { owner } = result.rows[0];
