@@ -1,8 +1,5 @@
-/* eslint-disable camelcase */
-/* eslint-disable indent */
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const AddedComment = require("../../Domains/comments/entities/AddedComment");
-const CommentDetail = require("../../Domains/comments/entities/CommentDetail");
 const CommentRepository = require("../../Domains/comments/CommentRepository");
 const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
 
