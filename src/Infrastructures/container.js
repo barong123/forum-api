@@ -17,8 +17,6 @@ const ThreadRepository = require("../Domains/threads/ThreadRepository");
 const ThreadRepositoryPostgres = require("./repository/ThreadRepositoryPostgres");
 const CommentRepository = require("../Domains/comments/CommentRepository");
 const CommentRepositoryPostgres = require("./repository/CommentRepositoryPostgres");
-const RelationRepository = require("../Domains/relations/RelationRepository");
-const RelationRepositoryPostgres = require("./repository/RelationRepositoryPostgres");
 const ReplyRepository = require("../Domains/replies/ReplyRepository");
 const ReplyRepositoryPostgres = require("./repository/ReplyRepositoryPostgres");
 const PasswordHash = require("../Applications/security/PasswordHash");
@@ -106,17 +104,6 @@ container.register([
         },
         {
           concrete: nanoid,
-        },
-      ],
-    },
-  },
-  {
-    key: RelationRepository.name,
-    Class: RelationRepositoryPostgres,
-    parameter: {
-      dependencies: [
-        {
-          concrete: pool,
         },
       ],
     },
@@ -246,10 +233,6 @@ container.register([
           name: "commentRepository",
           internal: CommentRepository.name,
         },
-        {
-          name: "relationRepository",
-          internal: RelationRepository.name,
-        },
       ],
     },
   },
@@ -284,10 +267,6 @@ container.register([
           name: "replyRepository",
           internal: ReplyRepository.name,
         },
-        {
-          name: "relationRepository",
-          internal: RelationRepository.name,
-        },
       ],
     },
   },
@@ -311,10 +290,6 @@ container.register([
       injectType: "destructuring",
       dependencies: [
         {
-          name: "userRepository",
-          internal: UserRepository.name,
-        },
-        {
           name: "threadRepository",
           internal: ThreadRepository.name,
         },
@@ -325,10 +300,6 @@ container.register([
         {
           name: "replyRepository",
           internal: ReplyRepository.name,
-        },
-        {
-          name: "relationRepository",
-          internal: RelationRepository.name,
         },
       ],
     },

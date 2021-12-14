@@ -9,7 +9,7 @@ class ThreadsHandler {
     this.getThreadDetailHandler = this.getThreadDetailHandler.bind(this);
   }
 
-  async getThreadDetailHandler(request, h) {
+  async getThreadDetailHandler(request) {
     const getThreadDetailUseCase = this._container.getInstance(
       GetThreadDetailUseCase.name
     );
@@ -18,14 +18,12 @@ class ThreadsHandler {
 
     const thread = await getThreadDetailUseCase.execute({ threadId });
 
-    const response = h.response({
+    return {
       status: "success",
       data: {
         thread,
       },
-    });
-    response.code(200);
-    return response;
+    };
   }
 
   async postThreadHandler(request, h) {

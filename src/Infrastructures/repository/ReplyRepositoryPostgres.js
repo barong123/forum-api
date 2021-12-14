@@ -11,14 +11,14 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   }
 
   async addReply(addReply) {
-    const { content, userId } = addReply;
+    const { content, userId, commentId } = addReply;
     const id = `reply-${this._idGenerator()}`;
     const date = new Date().toISOString();
     const isDelete = false;
 
     const query = {
-      text: "INSERT INTO replies VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner",
-      values: [id, content, date, userId, isDelete],
+      text: "INSERT INTO replies VALUES($1, $2, $3, $4, $5, $6) RETURNING id, content, owner",
+      values: [id, content, date, userId, isDelete, commentId],
     };
 
     const result = await this._pool.query(query);
@@ -26,20 +26,19 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     return new AddedReply({ ...result.rows[0] });
   }
 
-  async getReply(replyId) {
+  async getRepliesByCommentIds(commentIds) {
     const query = {
-      text: "SELECT * FROM replies WHERE id = $1",
-      values: [replyId],
+      text: `SELECT replies.*, users.username
+      FROM replies
+      INNER JOIN users ON users.id = replies.owner
+      WHERE replies.comment_id = ANY($1::text[])
+      ORDER BY replies.date ASC`,
+      values: [commentIds], // commentIds bertipe array string
     };
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) {
-      throw new NotFoundError("balasan tidak ditemukan");
-    }
-
-    const reply = result.rows[0];
-    return reply;
+    return result.rows;
   }
 
   async deleteReply(deleteReply) {

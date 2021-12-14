@@ -13,6 +13,7 @@ exports.up = (pgm) => {
     date: {
       type: "TEXT",
       notNull: true,
+      default: pgm.func("current_timestamp"),
     },
     owner: {
       type: "VARCHAR(50)",
@@ -22,12 +23,22 @@ exports.up = (pgm) => {
       type: "BOOLEAN",
       notNull: true,
     },
+    comment_id: {
+      type: "VARCHAR(50)",
+      notNull: true,
+    },
   });
 
   pgm.addConstraint(
     "replies",
     "fk_replies.owner_users.id",
     "FOREIGN KEY(owner) REFERENCES users(id) ON DELETE CASCADE"
+  );
+
+  pgm.addConstraint(
+    "replies",
+    "fk_replies.comment_id_comments.id",
+    "FOREIGN KEY(comment_id) REFERENCES comments(id) ON DELETE CASCADE"
   );
 };
 

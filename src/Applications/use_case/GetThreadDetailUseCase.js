@@ -6,57 +6,42 @@ const CommentDetail = require("../../Domains/comments/entities/CommentDetail");
 const ReplyDetail = require("../../Domains/replies/entities/ReplyDetail");
 
 class GetThreadDetailUseCase {
-  constructor({
-    userRepository,
-    threadRepository,
-    commentRepository,
-    replyRepository,
-    relationRepository,
-  }) {
-    this._userRepository = userRepository;
+  constructor({ threadRepository, commentRepository, replyRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;
-    this._relationRepository = relationRepository;
   }
 
   async execute(useCasePayload) {
     const { threadId } = useCasePayload;
 
     const thread = await this._threadRepository.getThread(threadId);
-    const threadUsername = await this._userRepository.getUsernameById(
-      thread.owner
-    );
-
-    const { id, title, body, date } = thread;
     const threadDetail = new ThreadDetail({
-      id,
-      title,
-      body,
-      date,
-      username: threadUsername,
+      ...thread,
       comments: [],
     });
 
-    const commentsIdArr = await this._relationRepository.getCommentsId(
+    const comments = await this._commentRepository.getCommentsByThreadId(
       threadId
     );
+    // const comments = this.sortByDate(UnorderedComments);
+
+    const commentIds = comments.map((comment) => comment.id);
+    const bulkReplies = await this._replyRepository.getRepliesByCommentIds(
+      commentIds
+    );
+    // const bulkReplies = this.sortByDate(UnorderedBulkReplies);
 
     let i = 0;
-    while (i < commentsIdArr.length) {
-      const comment = await this._commentRepository.getComment(
-        commentsIdArr[i]
-      );
-      const commentUsername = await this._userRepository.getUsernameById(
-        comment.owner
-      );
+    while (i < comments.length) {
+      const comment = comments[i];
 
-      const { id, content, date, is_delete } = comment;
+      const { id, content, date, username, is_delete } = comment;
       const commentDetail = new CommentDetail({
         id,
         content,
         date,
-        username: commentUsername,
+        username,
         isDeleted: is_delete,
         replies: [],
       });
@@ -65,23 +50,20 @@ class GetThreadDetailUseCase {
         commentDetail.content = "**komentar telah dihapus**";
       }
 
-      const repliesIdArr = await this._relationRepository.getRepliesId(
-        commentsIdArr[i]
+      const replies = bulkReplies.filter(
+        (reply) => reply.comment_id === comment.id
       );
 
       let j = 0;
-      while (j < repliesIdArr.length) {
-        const reply = await this._replyRepository.getReply(repliesIdArr[j]);
-        const replyUsername = await this._userRepository.getUsernameById(
-          reply.owner
-        );
+      while (j < replies.length) {
+        const reply = replies[j];
 
-        const { id, content, date, is_delete } = reply;
+        const { id, content, date, username, is_delete } = reply;
         const replyDetail = new ReplyDetail({
           id,
           content,
           date,
-          username: replyUsername,
+          username,
           isDeleted: is_delete,
         });
 
@@ -98,6 +80,12 @@ class GetThreadDetailUseCase {
     }
 
     return threadDetail;
+  }
+
+  sortByDate(commentsOrRepliesArray) {
+    return commentsOrRepliesArray.sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
   }
 }
 

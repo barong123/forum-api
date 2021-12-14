@@ -11,14 +11,14 @@ class CommentRepositoryPostgres extends CommentRepository {
   }
 
   async addComment(addComment) {
-    const { content, userId } = addComment;
+    const { content, userId, threadId } = addComment;
     const id = `comment-${this._idGenerator()}`;
     const date = new Date().toISOString();
-    const isDelete = false;
+    const isDeleted = false;
 
     const query = {
-      text: "INSERT INTO comments VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner",
-      values: [id, content, date, userId, isDelete],
+      text: "INSERT INTO comments VALUES($1, $2, $3, $4, $5, $6) RETURNING id, content, owner",
+      values: [id, content, date, userId, isDeleted, threadId],
     };
 
     const result = await this._pool.query(query);
@@ -26,21 +26,19 @@ class CommentRepositoryPostgres extends CommentRepository {
     return new AddedComment({ ...result.rows[0] });
   }
 
-  async getComment(commentId) {
+  async getCommentsByThreadId(threadId) {
     const query = {
-      text: "SELECT * FROM comments WHERE id = $1",
-      values: [commentId],
+      text: `SELECT comments.*, users.username 
+      FROM comments 
+      INNER JOIN users ON users.id = comments.owner
+      WHERE comments.thread_id = $1
+      ORDER BY comments.date ASC`,
+      values: [threadId],
     };
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) {
-      throw new NotFoundError("komen dari thread tidak ditemukan");
-    }
-
-    const comment = result.rows[0];
-
-    return comment;
+    return result.rows;
   }
 
   async deleteComment(deleteComment) {

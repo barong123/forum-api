@@ -1,10 +1,8 @@
 const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
 const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
-const InvariantError = require("../../../Commons/exceptions/InvariantError");
 const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
 const AddedThread = require("../../../Domains/threads/entities/AddedThread");
 const AddThread = require("../../../Domains/threads/entities/AddThread");
-const ThreadDetail = require("../../../Domains/threads/entities/ThreadDetail");
 const pool = require("../../database/postgres/pool");
 const ThreadRepositoryPostgres = require("../ThreadRepositoryPostgres");
 
@@ -103,6 +101,7 @@ describe("ThreadRepositoryPostgres", () => {
         body: "ini isi thread",
         date: "2021-08-08T07:22:33.555Z",
         owner: "user-123",
+        username: "myUser",
       });
     });
   });

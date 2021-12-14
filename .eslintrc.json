@@ -20,7 +20,6 @@
     "no-unused-vars": "off",
     "implicit-arrow-linebreak": "off",
     "function-paren-newline": "off",
-    "object-curly-newline": "off",
-    "no-await-in-loop": "off"
+    "object-curly-newline": "off"
   }
 }

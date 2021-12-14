@@ -18,6 +18,7 @@ describe("an AddReply entities", () => {
     const payload = {
       content: "abc",
       userId: 123,
+      commentId: "comment-123",
     };
 
     // Action and Assert
@@ -31,13 +32,15 @@ describe("an AddReply entities", () => {
     const payload = {
       content: "abc",
       userId: "user-123",
+      commentId: "comment-123",
     };
 
     // Action
-    const { content, userId } = new AddReply(payload);
+    const { content, userId, commentId } = new AddReply(payload);
 
     // Assert
     expect(content).toEqual(payload.content);
     expect(userId).toEqual(payload.userId);
+    expect(commentId).toEqual(payload.commentId);
   });
 });

@@ -100,6 +100,12 @@ describe("/replies endpoint", () => {
 
     it("should response 400 when request payload not contain needed property", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
+      await ThreadsTableTestHelper.addThread({ id: "thread-123" });
+      await CommentsTableTestHelper.addComment({
+        id: "comment-123",
+        threadId: "thread-123",
+      });
       const requestPayload = {};
       const accessToken = await ServerTestHelper.getAccessToken();
       const server = await createServer(container);
@@ -107,7 +113,7 @@ describe("/replies endpoint", () => {
       // Action
       const response = await server.inject({
         method: "POST",
-        url: "/threads/{threadId}/comments/{commentId}/replies",
+        url: "/threads/thread-123/comments/comment-123/replies",
         payload: requestPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -125,6 +131,12 @@ describe("/replies endpoint", () => {
 
     it("should response 400 when request payload not meet data type specification", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
+      await ThreadsTableTestHelper.addThread({ id: "thread-123" });
+      await CommentsTableTestHelper.addComment({
+        id: "comment-123",
+        threadId: "thread-123",
+      });
       const requestPayload = {
         content: ["abc"],
       };
@@ -134,7 +146,7 @@ describe("/replies endpoint", () => {
       // Action
       const response = await server.inject({
         method: "POST",
-        url: "/threads/{threadId}/comments/{commentId}/replies",
+        url: "/threads/thread-123/comments/comment-123/replies",
         payload: requestPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -168,6 +180,7 @@ describe("/replies endpoint", () => {
       await CommentsTableTestHelper.addComment({
         id: "comment-456",
         owner: "user-456",
+        threadId: "thread-789",
       });
       await UsersTableTestHelper.addUser({
         id: "user-123",
@@ -176,6 +189,7 @@ describe("/replies endpoint", () => {
       await RepliesTableTestHelper.addReply({
         id: "reply-123",
         owner: "user-123",
+        commentId: "comment-456",
       });
       const accessToken = await ServerTestHelper.getAccessToken();
       const server = await createServer(container);
@@ -212,6 +226,7 @@ describe("/replies endpoint", () => {
       await CommentsTableTestHelper.addComment({
         id: "comment-456",
         owner: "user-456",
+        threadId: "thread-789",
       });
       const accessToken = await ServerTestHelper.getAccessToken();
       const server = await createServer(container);

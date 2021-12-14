@@ -8,7 +8,7 @@ class DeleteReply {
     this.replyId = replyId;
   }
 
-  _verifyPayload({ userId, commentId, replyId }) {
+  _verifyPayload({ userId, replyId }) {
     if (!userId || !replyId) {
       throw new Error("DELETE_REPLY.NOT_CONTAIN_NEEDED_PROPERTY");
     }

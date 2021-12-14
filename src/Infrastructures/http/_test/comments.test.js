@@ -72,6 +72,8 @@ describe("/comments endpoint", () => {
 
     it("should response 400 when request payload not contain needed property", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
+      await ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const requestPayload = {};
       const accessToken = await ServerTestHelper.getAccessToken();
       const server = await createServer(container);
@@ -97,8 +99,10 @@ describe("/comments endpoint", () => {
 
     it("should response 400 when request payload not meet data type specification", async () => {
       // Arrange
+      await UsersTableTestHelper.addUser({ id: "user-123" });
+      await ThreadsTableTestHelper.addThread({ id: "thread-123" });
       const requestPayload = {
-        content: ["abc"],
+        content: 123,
       };
       const accessToken = await ServerTestHelper.getAccessToken();
       const server = await createServer(container);
@@ -140,6 +144,7 @@ describe("/comments endpoint", () => {
       await CommentsTableTestHelper.addComment({
         id: "comment-123",
         owner: "user-123",
+        threadId: "thread-789",
       });
       const accessToken = await ServerTestHelper.getAccessToken();
       const server = await createServer(container);

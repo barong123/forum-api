@@ -1,7 +1,6 @@
 const AddComment = require("../../../Domains/comments/entities/AddComment");
 const AddedComment = require("../../../Domains/comments/entities/AddedComment");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
-const RelationRepository = require("../../../Domains/relations/RelationRepository");
 const AddCommentUseCase = require("../AddCommentUseCase");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 
@@ -22,15 +21,11 @@ describe("AddCommentUseCase", () => {
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
-    const mockRelationRepository = new RelationRepository();
 
     /** mocking needed function */
     mockCommentRepository.addComment = jest
       .fn()
       .mockImplementation(() => Promise.resolve(expectedAddedComment));
-    mockRelationRepository.addRelation = jest
-      .fn()
-      .mockImplementation(() => Promise.resolve());
     mockThreadRepository.verifyThreadExistence = jest
       .fn()
       .mockImplementation(() => Promise.resolve());
@@ -39,7 +34,6 @@ describe("AddCommentUseCase", () => {
     const getAddCommentUseCase = new AddCommentUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
-      relationRepository: mockRelationRepository,
     });
 
     // Action
@@ -47,12 +41,14 @@ describe("AddCommentUseCase", () => {
 
     // Assert
     expect(addedComment).toStrictEqual(expectedAddedComment);
-    expect(mockThreadRepository.verifyThreadExistence).toBeCalled();
-    expect(mockRelationRepository.addRelation).toBeCalled();
+    expect(mockThreadRepository.verifyThreadExistence).toBeCalledWith(
+      useCasePayload.threadId
+    );
     expect(mockCommentRepository.addComment).toBeCalledWith(
       new AddComment({
         content: useCasePayload.content,
         userId: useCasePayload.userId,
+        threadId: useCasePayload.threadId,
       })
     );
   });

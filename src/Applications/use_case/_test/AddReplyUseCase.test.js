@@ -1,7 +1,6 @@
 const AddReply = require("../../../Domains/replies/entities/AddReply");
 const AddedReply = require("../../../Domains/replies/entities/AddedReply");
 const ReplyRepository = require("../../../Domains/replies/ReplyRepository");
-const RelationRepository = require("../../../Domains/relations/RelationRepository");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 const AddReplyUseCase = require("../AddReplyUseCase");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
@@ -25,15 +24,11 @@ describe("AddReplyUseCase", () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
-    const mockRelationRepository = new RelationRepository();
 
     /** mocking needed function */
     mockReplyRepository.addReply = jest
       .fn()
       .mockImplementation(() => Promise.resolve(expectedAddedReply));
-    mockRelationRepository.addRelation = jest
-      .fn()
-      .mockImplementation(() => Promise.resolve());
     mockThreadRepository.verifyThreadExistence = jest
       .fn()
       .mockImplementation(() => Promise.resolve());
@@ -46,7 +41,6 @@ describe("AddReplyUseCase", () => {
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
-      relationRepository: mockRelationRepository,
     });
 
     // Action
@@ -54,13 +48,17 @@ describe("AddReplyUseCase", () => {
 
     // Assert
     expect(addedReply).toStrictEqual(expectedAddedReply);
-    expect(mockThreadRepository.verifyThreadExistence).toBeCalled();
-    expect(mockCommentRepository.verifyCommentExistence).toBeCalled();
-    expect(mockRelationRepository.addRelation).toBeCalled();
+    expect(mockThreadRepository.verifyThreadExistence).toBeCalledWith(
+      useCasePayload.threadId
+    );
+    expect(mockCommentRepository.verifyCommentExistence).toBeCalledWith(
+      useCasePayload.commentId
+    );
     expect(mockReplyRepository.addReply).toBeCalledWith(
       new AddReply({
         content: useCasePayload.content,
         userId: useCasePayload.userId,
+        commentId: useCasePayload.commentId,
       })
     );
   });
