@@ -6,10 +6,16 @@ const CommentDetail = require("../../Domains/comments/entities/CommentDetail");
 const ReplyDetail = require("../../Domains/replies/entities/ReplyDetail");
 
 class GetThreadDetailUseCase {
-  constructor({ threadRepository, commentRepository, replyRepository }) {
+  constructor({
+    threadRepository,
+    commentRepository,
+    replyRepository,
+    likeRepository,
+  }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;
+    this._likeRepository = likeRepository;
   }
 
   async execute(useCasePayload) {
@@ -26,24 +32,32 @@ class GetThreadDetailUseCase {
       commentIds
     );
 
+    // const bulkLikes = await this._likeRepository.getLikesByCommentIds(
+    //   commentIds
+    // );
+
     return new ThreadDetail({
       ...thread,
-      comments: this.getCommentsAndReplies(comments, bulkReplies),
+      comments: this.getCommentsAndReplies(comments, bulkLikes, bulkReplies),
     });
   }
 
-  getCommentsAndReplies(comments, bulkReplies) {
-    return comments.map(
-      (comment) =>
-        new CommentDetail({
-          ...comment,
-          isDeleted: comment.is_delete,
-          content: comment.is_delete
-            ? "**komentar telah dihapus**"
-            : comment.content,
-          replies: this.getRepliesForComment(bulkReplies, comment.id),
-        })
-    );
+  getCommentsAndReplies(comments, bulkLikes, bulkReplies) {
+    return comments.map((comment) => {
+      const likeCount = bulkLikes.filter(
+        (like) => like.comment_id === comment.id
+      ).length;
+
+      return new CommentDetail({
+        ...comment,
+        likeCount,
+        isDeleted: comment.is_delete,
+        content: comment.is_delete
+          ? "**komentar telah dihapus**"
+          : comment.content,
+        replies: this.getRepliesForComment(bulkReplies, comment.id),
+      });
+    });
   }
 
   getRepliesForComment(bulkReplies, commentId) {
