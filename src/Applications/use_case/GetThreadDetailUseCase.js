@@ -32,19 +32,23 @@ class GetThreadDetailUseCase {
       commentIds
     );
 
-    // const bulkLikes = await this._likeRepository.getLikesByCommentIds(
-    //   commentIds
-    // );
+    const bulkCommentLikes = await this._likeRepository.getLikesByCommentIds(
+      commentIds
+    );
 
     return new ThreadDetail({
       ...thread,
-      comments: this.getCommentsAndReplies(comments, bulkLikes, bulkReplies),
+      comments: this.getCommentsAndReplies(
+        comments,
+        bulkCommentLikes,
+        bulkReplies
+      ),
     });
   }
 
-  getCommentsAndReplies(comments, bulkLikes, bulkReplies) {
+  getCommentsAndReplies(comments, bulkCommentLikes, bulkReplies) {
     return comments.map((comment) => {
-      const likeCount = bulkLikes.filter(
+      const likeCount = bulkCommentLikes.filter(
         (like) => like.comment_id === comment.id
       ).length;
 
