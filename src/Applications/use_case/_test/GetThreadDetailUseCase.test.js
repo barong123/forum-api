@@ -4,6 +4,7 @@ const ReplyDetail = require("../../../Domains/replies/entities/ReplyDetail");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const ReplyRepository = require("../../../Domains/replies/ReplyRepository");
+const LikeRepository = require("../../../Domains/likes/LikeRepository");
 const GetThreadDetailUseCase = require("../GetThreadDetailUseCase");
 
 describe("GetThreadDetailUseCase", () => {
@@ -55,6 +56,7 @@ describe("GetThreadDetailUseCase", () => {
           content: "**komentar telah dihapus**",
           date: "2021-08-08T07:22:33.555Z",
           username: "johndoe",
+          likeCount: 2,
           replies: [
             new ReplyDetail({
               id: "reply-_pby2_tmXV6bcvcdev8xk",
@@ -80,6 +82,7 @@ describe("GetThreadDetailUseCase", () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockLikeRepository = new LikeRepository();
 
     /** mocking needed function */
     mockThreadRepository.getThread = jest
@@ -93,12 +96,19 @@ describe("GetThreadDetailUseCase", () => {
       .mockImplementation(() =>
         Promise.resolve([expectedReply1, expectedReply2])
       );
+    mockLikeRepository.getLikesByCommentIds = jest.fn().mockImplementation(() =>
+      Promise.resolve([
+        { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId" },
+        { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId" },
+      ])
+    );
 
     /** creating use case instance */
     const getThreadDetailUseCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
+      likeRepository: mockLikeRepository,
     });
 
     // Action
@@ -113,6 +123,9 @@ describe("GetThreadDetailUseCase", () => {
       useCasePayload.threadId
     );
     expect(mockReplyRepository.getRepliesByCommentIds).toBeCalledWith([
+      expectedComment.id,
+    ]);
+    expect(mockLikeRepository.getLikesByCommentIds).toBeCalledWith([
       expectedComment.id,
     ]);
   });
@@ -165,6 +178,7 @@ describe("GetThreadDetailUseCase", () => {
           content: "sebuah comment",
           date: "2021-08-08T07:22:33.555Z",
           username: "johndoe",
+          likeCount: 2,
           replies: [
             new ReplyDetail({
               id: "reply-_pby2_tmXV6bcvcdev8xk",
@@ -181,6 +195,7 @@ describe("GetThreadDetailUseCase", () => {
           content: "sebuah comment",
           date: "2021-08-08T07:22:33.999Z",
           username: "johndoe",
+          likeCount: 2,
           replies: [],
           isDeleted: false,
         }),
@@ -191,6 +206,7 @@ describe("GetThreadDetailUseCase", () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockLikeRepository = new LikeRepository();
 
     /** mocking needed function */
     mockThreadRepository.getThread = jest
@@ -204,12 +220,21 @@ describe("GetThreadDetailUseCase", () => {
     mockReplyRepository.getRepliesByCommentIds = jest
       .fn()
       .mockImplementation(() => Promise.resolve([expectedReply]));
+    mockLikeRepository.getLikesByCommentIds = jest.fn().mockImplementation(() =>
+      Promise.resolve([
+        { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId" },
+        { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId" },
+        { comment_id: "comment-123", user_id: "dummyId" },
+        { comment_id: "comment-123", user_id: "dummyId" },
+      ])
+    );
 
     /** creating use case instance */
     const getThreadDetailUseCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
+      likeRepository: mockLikeRepository,
     });
 
     // Action
@@ -224,6 +249,10 @@ describe("GetThreadDetailUseCase", () => {
       useCasePayload.threadId
     );
     expect(mockReplyRepository.getRepliesByCommentIds).toBeCalledWith([
+      expectedComment1.id,
+      expectedComment2.id,
+    ]);
+    expect(mockLikeRepository.getLikesByCommentIds).toBeCalledWith([
       expectedComment1.id,
       expectedComment2.id,
     ]);

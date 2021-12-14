@@ -25,6 +25,7 @@ describe("a CommentDetail entities", () => {
       username: "myUser",
       replies: "123",
       isDeleted: false,
+      likeCount: [2],
     };
 
     // Action and Assert
@@ -42,10 +43,12 @@ describe("a CommentDetail entities", () => {
       username: "myUser",
       isDeleted: false,
       replies: [],
+      likeCount: 2,
     };
 
     // Action
-    const { id, content, date, username, replies } = new CommentDetail(payload);
+    const { id, content, date, username, replies, likeCount } =
+      new CommentDetail(payload);
 
     // Assert
     expect(id).toEqual(payload.id);
@@ -53,5 +56,6 @@ describe("a CommentDetail entities", () => {
     expect(date).toEqual(payload.date);
     expect(username).toEqual(payload.username);
     expect(replies).toEqual(payload.replies);
+    expect(likeCount).toEqual(payload.likeCount);
   });
 });
