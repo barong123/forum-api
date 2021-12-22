@@ -99,7 +99,7 @@ describe("GetThreadDetailUseCase", () => {
     mockLikeRepository.getLikesByCommentIds = jest.fn().mockImplementation(() =>
       Promise.resolve([
         { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId" },
-        { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId" },
+        { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId2" },
       ])
     );
 
@@ -223,9 +223,9 @@ describe("GetThreadDetailUseCase", () => {
     mockLikeRepository.getLikesByCommentIds = jest.fn().mockImplementation(() =>
       Promise.resolve([
         { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId" },
-        { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId" },
+        { comment_id: "comment-_pby2_tmXV6bcvcdev8xk", user_id: "dummyId2" },
         { comment_id: "comment-123", user_id: "dummyId" },
-        { comment_id: "comment-123", user_id: "dummyId" },
+        { comment_id: "comment-123", user_id: "dummyId2" },
       ])
     );
 

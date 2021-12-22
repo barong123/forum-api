@@ -5,7 +5,7 @@ class ReplyDetail {
     const { id, content, date, username, isDeleted } = payload;
 
     this.id = id;
-    this.content = content;
+    this.content = isDeleted ? "**balasan telah dihapus**" : content;
     this.date = date;
     this.username = username;
     this.isDeleted = isDeleted;

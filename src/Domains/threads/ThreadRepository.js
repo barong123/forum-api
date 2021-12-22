@@ -7,7 +7,7 @@ class ThreadRepository {
     throw new Error("THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
 
-  async verifyThreadExistence(replyId) {
+  async verifyThreadExistence(threadId) {
     throw new Error("THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
 }
