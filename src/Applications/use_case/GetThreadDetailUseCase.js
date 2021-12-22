@@ -47,21 +47,15 @@ class GetThreadDetailUseCase {
   }
 
   getCommentsAndReplies(comments, bulkCommentLikes, bulkReplies) {
-    return comments.map((comment) => {
-      const likeCount = bulkCommentLikes.filter(
-        (like) => like.comment_id === comment.id
-      ).length;
-
-      return new CommentDetail({
-        ...comment,
-        likeCount,
-        isDeleted: comment.is_delete,
-        content: comment.is_delete
-          ? "**komentar telah dihapus**"
-          : comment.content,
-        replies: this.getRepliesForComment(bulkReplies, comment.id),
-      });
-    });
+    return comments.map(
+      (comment) =>
+        new CommentDetail({
+          ...comment,
+          likeCount: this.getCommentLikeCount(bulkCommentLikes, comment.id),
+          isDeleted: comment.is_delete,
+          replies: this.getRepliesForComment(bulkReplies, comment.id),
+        })
+    );
   }
 
   getRepliesForComment(bulkReplies, commentId) {
@@ -72,11 +66,13 @@ class GetThreadDetailUseCase {
           new ReplyDetail({
             ...reply,
             isDeleted: reply.is_delete,
-            content: reply.is_delete
-              ? "**balasan telah dihapus**"
-              : reply.content,
           })
       );
+  }
+
+  getCommentLikeCount(bulkCommentLikes, commentId) {
+    return bulkCommentLikes.filter((like) => like.comment_id === commentId)
+      .length;
   }
 }
 

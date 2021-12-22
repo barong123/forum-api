@@ -6,7 +6,7 @@ class CommentDetail {
       payload;
 
     this.id = id;
-    this.content = content;
+    this.content = isDeleted ? "**komentar telah dihapus**" : content;
     this.date = date;
     this.username = username;
     this.replies = replies;
